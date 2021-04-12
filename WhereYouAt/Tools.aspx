@@ -34,6 +34,13 @@
         &nbsp;
             <asp:Label ID="lblFcmTokenResult" runat="server" Text="" CssClass="result_label"></asp:Label>
         </div>
+        <div class="labels"> 
+            <asp:Label ID="Label2" runat="server" Text="Get all userids"></asp:Label>
+            <br />
+            <asp:TextBox ID="txtGetUsersByEmail" runat="server" ToolTip="Email address to search"></asp:TextBox>&nbsp&nbsp<asp:Button ID="btnGetUseridsByEmail" runat="server" Text="Get ids" OnClick="btnGetUseridsByEmail_Click" />
+        &nbsp;
+            <asp:Label ID="lblGetUsersByEmailResults" runat="server" Text="" CssClass="result_label"></asp:Label>
+        </div>
     </form>
 </body>
 </html>

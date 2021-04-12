@@ -208,6 +208,11 @@ namespace WhereYouAt.AppCode {
 			return results;
 		}
 
+		/*public async Task<FcmResults> SendToAllFcmsByUser(string googleid, string title, string body) {
+			MyDb db = new MyDb();
+			
+		}*/
+
 	}
 
 	// FcmMessage myDeserializedClass = JsonConvert.DeserializeObject<FcmMessage>(myJsonResponse); 

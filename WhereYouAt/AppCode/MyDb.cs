@@ -450,6 +450,98 @@ namespace WhereYouAt.AppCode {
 			return tokens;
 		}
 
+		/// <summary>
+		/// Reads all fcmtoken entries for the specified user's google id.  Returns null on error or an empty list (but not null) if none are found.
+		/// </summary>
+		/// <param name="userid">The Google userid of the user to search</param>
+		/// <returns>A list of strings each containing an FCM token string and nothing else.</returns>
+		public Dictionary<string, string> GetAllFcmsByUserid(string userid) {
+
+			Dictionary<string, string> tokens = new Dictionary<string, string>();
+			SqlConnection myConn = new SqlConnection(GetConnectionString());
+
+			try {
+				myConn.Open();
+				SqlCommand cmd = new SqlCommand("SELECT a2.[displayname], a1.[createdon], a1.[fcmtoken] FROM [fcmtokens] as a1 join [Users] as a2 on a1.[userid] = [a2.userid] where a1.[userid] = @userid", myConn);
+				cmd.Parameters.AddWithValue("@userid", userid);
+				SqlDataAdapter da = new SqlDataAdapter(cmd);
+				SqlCommandBuilder cb = new SqlCommandBuilder(da);
+				DataSet ds = new DataSet();
+				da.Fill(ds);
+				foreach (DataRow row in ds.Tables[0].Rows) {
+					string displayname = row["displayname"].ToString();
+					string token = row["fcmtoken"].ToString();
+					tokens.Add(displayname, token);
+				}
+				myConn.Close();
+				return tokens;
+			} catch (Exception e) {
+				return null;
+			} finally {
+				myConn.Close();
+			}
+		}
+
+		/// <summary>
+		/// Reads all fcmtoken entries for the specified user's email address.  Returns null on error or an empty list (but not null) if none are found.
+		/// </summary>
+		/// <param name="email">The Google userid of the user to search</param>
+		/// <returns>A list of strings each containing an FCM token string and nothing else.</returns>
+		public List<string> GetAllFcmsByUserEmail(string email) {
+
+			SqlConnection myConn = new SqlConnection(GetConnectionString());
+			List<string> tokens = new List<string>();
+
+			try {
+				myConn.Open();
+				SqlCommand cmd = new SqlCommand("SELECT a2.[displayname], a1.[createdon], a1.[fcmtoken] FROM [fcmtokens] as a1 join [Users] as a2 on a1.[userid] = a2.[userid] where a2.[email] = @email", myConn);
+				cmd.Parameters.AddWithValue("@email", email);
+				SqlDataAdapter da = new SqlDataAdapter(cmd);
+				SqlCommandBuilder cb = new SqlCommandBuilder(da);
+				DataSet ds = new DataSet();
+				da.Fill(ds);
+				foreach (DataRow row in ds.Tables[0].Rows) {
+					string token = row["fcmtoken"].ToString();
+					tokens.Add(token);
+				}
+				return tokens;
+			} catch (Exception e) {
+				return null;
+			} finally {
+				myConn.Close();
+			}
+		}
+
+		/// <summary>
+		/// Reads all fcmtoken entries for the specified user's email address.  Returns null on error or an empty list (but not null) if none are found.
+		/// </summary>
+		/// <param name="email">The Google userid of the user to search</param>
+		/// <returns>A list of strings each containing an FCM token string and nothing else.</returns>
+		public List<string> GetUseridByUserEmail(string email) {
+
+			List<string> userids = new List<string>();
+			SqlConnection myConn = new SqlConnection(GetConnectionString());
+
+			try {
+				myConn.Open();
+				SqlCommand cmd = new SqlCommand("SELECT a1.[userid] from [Users] where a1.[email] = @email", myConn);
+				cmd.Parameters.AddWithValue("@email", email);
+				SqlDataAdapter da = new SqlDataAdapter(cmd);
+				SqlCommandBuilder cb = new SqlCommandBuilder(da);
+				DataSet ds = new DataSet();
+				da.Fill(ds);
+				foreach (DataRow row in ds.Tables[0].Rows) {
+					string userid = row["userid"].ToString();
+					userids.Add(userid);
+				}
+				return userids;
+			} catch (Exception e) {
+				return null;
+			} finally {
+				myConn.Close();
+			}
+		}
+
 		public MemberLocUpdates GetTripUpdateReport(string tripcode, string userid) {
 			OperationResult operationResult = new OperationResult();
 
