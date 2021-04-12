@@ -60,12 +60,8 @@ namespace WhereYouAt.Controllers {
 						if (value.Arguments[2] != null) {
 							photourl = (string)value.Arguments[2].value;
 						}
-						if (value.Arguments[4] != null) {
-							fcmtoken = (string) value.Arguments[4].value;
-						}
 						displayname = (string)value.Arguments[3].value;
 						operationResults.allResults.Add(UpsertUser(userid, email, photourl, displayname));
-						operationResults.allResults.Add(UpsertFcmToken(userid, fcmtoken));
 						response = Request.CreateResponse(HttpStatusCode.OK, operationResults);
 						return response;
 					case UPSERT_FCMTOKEN:

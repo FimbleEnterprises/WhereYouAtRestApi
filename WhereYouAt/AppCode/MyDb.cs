@@ -317,8 +317,8 @@ namespace WhereYouAt.AppCode {
 				DataSet ds = new DataSet();
 				da.Fill(ds);
 				Trip trip = new Trip(tripcode);
-				TripMember tripMember = new TripMember()
-				trip.createdby = ds.Tables[0].Rows[0]["createdby"].ToString();
+				// TripMember tripMember = new TripMember();
+				// trip.createdby = ds.Tables[0].Rows[0]["createdby"].ToString();
 				/*dr["tripcode"] = potentialTripcode;
 				dr["createdon"] = DateTime.Now;
 				dr["validuntil"] = calculateTripValidUntil();
@@ -327,7 +327,7 @@ namespace WhereYouAt.AppCode {
 				da.Update(ds);*/
 				myConn.Close();
 
-				return new OperationResult(true, "Trip was created.  Check operationSummary for the tripcode", potentialTripcode);
+				return new OperationResult(true, "Trip was created.  Check operationSummary for the tripcode", tripcode);
 
 			} catch (Exception e) {
 				return new OperationResult(false, "Failed to create trip - see operationSummary for any messages", e.Message);
