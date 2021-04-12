@@ -17,13 +17,13 @@ namespace WhereYouAtApi {
 
 		async System.Threading.Tasks.Task validateTokenAsync() {
 			WhereYouAt.AppCode.FcmEngine fcm = new WhereYouAt.AppCode.FcmEngine();
-			WhereYouAt.AppCode.FcmEngine.FcmResults response = await fcm.ValidateToken(txtFcmToken.Text);
+			WhereYouAt.AppCode.FcmEngine.FcmResults results = await fcm.ValidateToken(txtFcmToken.Text);
 
-			if (response.wasSuccessful()) {
+			/*if (response.wasSuccessful()) {
 				lblFcmTokenResult.Text = "Success";
 			} else {
 				lblFcmTokenResult.Text = response.results[0].error;
-			}
+			}*/
 		}
 
 	}

@@ -3,7 +3,9 @@ using FirebaseAdmin.Messaging;*/
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -88,52 +90,60 @@ namespace WhereYouAt.AppCode {
 		/// <param name="title">Message title</param>
 		/// <param name="body">Message body</param>
 		/// <returns>Pass/Fail boolean response.</returns>
-		public async Task<bool> NotifyAsync(string to, string title, string body) {
-			try {
-				// Get the server key from FCM console
-				var serverKey = string.Format("key={0}", FCM_SERVER_KEY);
+		public async Task<FcmResults> NotifyAsync(string recipient, string title, string body) {
 
-				// Get the sender id from FCM console
-				var senderId = string.Format("id={0}", FCM_SENDER_KEY);
+			// Our server's identity and access key
+			string SERVER_API_KEY = FCM_SERVER_KEY;
+			var SENDER_ID = FCM_SENDER_KEY;
 
-				var data = new {
-					to, // Recipient device token
-					notification = new { title, body }
-				};
+			// Construct the request 
+			WebRequest tRequest;
+			tRequest = WebRequest.Create("https://fcm.googleapis.com/fcm/send");
+			tRequest.Method = "post";
+			tRequest.ContentType = "application/json";
+			tRequest.Headers.Add(string.Format("Authorization: key={0}", SERVER_API_KEY));
+			tRequest.Headers.Add(string.Format("Sender: id={0}", SENDER_ID));
 
-				// Using Newtonsoft.Json
-				var jsonBody = JsonConvert.SerializeObject(data);
-
-				using (var httpRequest = new HttpRequestMessage(HttpMethod.Post, "https://fcm.googleapis.com/fcm/send")) {
-					httpRequest.Headers.TryAddWithoutValidation("Authorization", serverKey);
-					httpRequest.Headers.TryAddWithoutValidation("Sender", senderId);
-					httpRequest.Content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
-
-					using (var httpClient = new HttpClient()) {
-						HttpResponseMessage result = httpClient.SendAsync(httpRequest).Result;
-						string resultstring = result.Content.ReadAsStringAsync().Result;
-
-						FcmResults fcmResult = new FcmResults(resultstring);
-						if (fcmResult.wasDeviceUnRegistered() == TriStateResult.YES) {
-							// Do something to remove the now invalid FCM token from the server.
-							MyDb db = new MyDb();
-							db.RemoveFcmToken(to);
-						}
-
-						if (result.IsSuccessStatusCode) {
-							return true;
-						} else {
-							// Use result.StatusCode to handle failure
-							// Your custom error handler here
-							MyDb.WriteLogLine($"Error sending notification. Status Code: {result.StatusCode}");
-						}
-					}
+			// Construct a quick FCM object per Google's FCM requirements
+			var data = new {
+				to = recipient,
+				notification = new {
+					body = body,
+					title = title,
+					icon = "myicon"
 				}
-			} catch (Exception ex) {
-				MyDb.WriteLogLine($"Exception thrown in Notify Service: {ex}");
-			}
+			};
 
-			return false;
+			// Convert that quick FCM object to json for Google consumption
+			var json = JsonConvert.SerializeObject(data);
+
+			// Create a byte array from our json and measure its length
+			Byte[] byteArray = Encoding.UTF8.GetBytes(json);
+			tRequest.ContentLength = byteArray.Length;
+
+			// Construct a data stream within our web request 
+			Stream dataStream = tRequest.GetRequestStream();
+			dataStream.Write(byteArray, 0, byteArray.Length);
+			dataStream.Close();
+
+			// Make the request
+			WebResponse tResponse = tRequest.GetResponse();
+
+			// Use the data stream afor the response
+			dataStream = tResponse.GetResponseStream();
+
+			// Read the response and convert it to a string
+			StreamReader tReader = new StreamReader(dataStream);
+			String sResponseFromServer = tReader.ReadToEnd();
+
+			// Clean up
+			tReader.Close();
+			dataStream.Close();
+			tResponse.Close();
+
+			// Create our custom response object from the response string and return it
+			FcmResults results = new FcmResults(sResponseFromServer);
+			return results;
 		}
 
 		/// <summary>
@@ -142,58 +152,129 @@ namespace WhereYouAt.AppCode {
 		/// </summary>
 		/// <param name="to">The FCM token string to validate</param>
 		/// <returns>Not quite sure yet...</returns>
-		public async Task<FcmResults> ValidateToken(string to) {
+		public async Task<FcmResults> ValidateToken(string recipient) {
 
-			FcmResults fcmResult = new FcmResults();
+			// Our server's identity and access key
+			string SERVER_API_KEY = FCM_SERVER_KEY;
+			var SENDER_ID = FCM_SENDER_KEY;
 
-			try {
-				
-				// Get the server key from FCM console
-				var serverKey = string.Format("key={0}", FCM_SERVER_KEY);
+			// Construct the request 
+			WebRequest tRequest;
+			tRequest = WebRequest.Create("https://fcm.googleapis.com/fcm/send");
+			tRequest.Method = "post";
+			tRequest.ContentType = "application/json";
+			tRequest.Headers.Add(string.Format("Authorization: key={0}", SERVER_API_KEY));
+			tRequest.Headers.Add(string.Format("Sender: id={0}", SENDER_ID));
 
-				// Get the sender id from FCM console
-				var senderId = string.Format("id={0}", FCM_SENDER_KEY);
-
-				var data = new {
-					to, // Recipient device token
-					notification = new { VALIDATE_TOKEN_TITLE, VALIDATE_TOKEN_BODY }
-				};
-
-				// Using Newtonsoft.Json
-				var jsonBody = JsonConvert.SerializeObject(data);
-
-				using (var httpRequest = new HttpRequestMessage(HttpMethod.Post, "https://fcm.googleapis.com/fcm/send")) {
-					httpRequest.Headers.TryAddWithoutValidation("Authorization", serverKey);
-					httpRequest.Headers.TryAddWithoutValidation("Sender", senderId);
-					httpRequest.Content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
-
-					using (var httpClient = new HttpClient()) {
-						HttpResponseMessage result = httpClient.SendAsync(httpRequest).Result;
-						string resultstring = result.Content.ReadAsStringAsync().Result;
-
-						fcmResult = new FcmResults(resultstring);
-					
-						if (fcmResult.wasDeviceUnRegistered() == TriStateResult.YES) {
-							// Do something to remove the now invalid FCM token from the server.
-							MyDb db = new MyDb();
-							db.RemoveFcmToken(to);
-						}
-
-						if (result.IsSuccessStatusCode) {
-							return fcmResult;
-						} else {
-							// Use result.StatusCode to handle failure
-							// Your custom error handler here
-							MyDb.WriteLogLine($"Error sending notification. Status Code: {result.StatusCode}");
-						}
-					}
+			// Construct a quick FCM object per Google's FCM requirements
+			var data = new {
+				to = recipient,
+				notification = new {
+					body = VALIDATE_TOKEN_BODY,
+					title = VALIDATE_TOKEN_TITLE,
+					icon = "myicon"
 				}
-			} catch (Exception ex) {
-				MyDb.WriteLogLine($"Exception thrown in Notify Service: {ex}");
-			}
+			};
 
-			return fcmResult;
+			// Convert that quick FCM object to json for Google consumption
+			var json = JsonConvert.SerializeObject(data);
+
+			// Create a byte array from our json and measure its length
+			Byte[] byteArray = Encoding.UTF8.GetBytes(json);
+			tRequest.ContentLength = byteArray.Length;
+
+			// Construct a data stream within our web request 
+			Stream dataStream = tRequest.GetRequestStream();
+			dataStream.Write(byteArray, 0, byteArray.Length);
+			dataStream.Close();
+
+			// Make the request
+			WebResponse tResponse = tRequest.GetResponse();
+
+			// Use the data stream afor the response
+			dataStream = tResponse.GetResponseStream();
+
+			// Read the response and convert it to a string
+			StreamReader tReader = new StreamReader(dataStream);
+			String sResponseFromServer = tReader.ReadToEnd();
+
+			// Clean up
+			tReader.Close();
+			dataStream.Close();
+			tResponse.Close();
+
+			// Create our custom response object from the response string and return it
+			FcmResults results = new FcmResults(sResponseFromServer);
+			return results;
 		}
 
 	}
+
+	// FcmMessage myDeserializedClass = JsonConvert.DeserializeObject<FcmMessage>(myJsonResponse); 
+	public class Payload {
+		public string title { get; set; }
+		public string body { get; set; }
+	}
+
+	public class Message {
+		public string token { get; set; }
+		public Payload notification { get; set; }
+	}
+
+	public class FcmContainer {
+		public Message message { get; set; }
+
+		/// <summary>
+		/// Constructs a FCM message that Google's servers can parse.  
+		/// </summary>
+		/// <param name="to">Recipient's fcm token.</param>
+		/// <param name="title">A title for the message</param>
+		/// <param name="body">The body of the messsage</param>
+		/// <returns>JSON that Google's FCM server can parse and can be included in the web request to Google.</returns>
+		public static string ConstructAsJson(string to, string title, string body) {
+			// Build an object that can be deserialized into JSON that Google's FCM server can understand.
+			FcmContainer fcmContainer = new FcmContainer();
+
+			// 
+			Payload payload = new Payload();
+			payload.title = title;
+			payload.body = body;
+
+			Message msg = new Message();
+			msg.token = to;
+			msg.notification = payload;
+
+			fcmContainer.message = msg;
+
+			return JsonConvert.SerializeObject(fcmContainer);
+		}
+
+		/// <summary>
+		/// Constructs a FCM message in a format described by Google for FCM messages.
+		/// </summary>
+		/// <param name="to">Recipient's fcm token.</param>
+		/// <param name="title">A title for the message</param>
+		/// <param name="body">The body of the messsage</param>
+		/// <returns>An object with properties structured in such a way as to conform to Google's FCM message requests.  This is unlikely
+		/// to be used in this form - this would typically be serialized to JSON and included in a web request.</returns>
+		public static FcmContainer ConstructAsObject(string to, string title, string body) {
+			// Build an object that can be deserialized into JSON that Google's FCM server can understand.
+			FcmContainer fcmContainer = new FcmContainer();
+
+			// 
+			Payload payload = new Payload();
+			payload.title = title;
+			payload.body = body;
+
+			Message msg = new Message();
+			msg.token = to;
+			msg.notification = payload;
+
+			fcmContainer.message = msg;
+
+			return fcmContainer;
+		}
+
+	}
+
 }
