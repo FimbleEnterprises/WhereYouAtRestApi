@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Tools.aspx.cs" Inherits="WhereYouAtApi.Tools" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Tools.aspx.cs" Inherits="WhereYouAt.Tools" %>
 
 <!DOCTYPE html>
 
@@ -40,6 +40,13 @@
             <asp:TextBox ID="txtGetUsersByEmail" runat="server" ToolTip="Email address to search"></asp:TextBox>&nbsp&nbsp<asp:Button ID="btnGetUseridsByEmail" runat="server" Text="Get ids" OnClick="btnGetUseridsByEmail_Click" />
         &nbsp;
             <asp:Label ID="lblGetUsersByEmailResults" runat="server" Text="" CssClass="result_label"></asp:Label>
+        </div>
+        <div class="labels"> 
+            <asp:Label ID="Label3" runat="server" Text="Test new FCM"></asp:Label>
+            <br />
+            <asp:TextBox ID="TextBox1" runat="server" ToolTip="FCM Token"></asp:TextBox>&nbsp&nbsp<asp:Button ID="btnTestFcm" runat="server" Text="Send FCM" OnClick="btnTestFcm_Click" />
+        &nbsp;
+            <asp:Label ID="Label4" runat="server" Text="" CssClass="result_label"></asp:Label>
         </div>
     </form>
 </body>

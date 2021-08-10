@@ -1,0 +1,119 @@
+﻿.body {
+    -webkit-print-color-adjust: exact !important;
+}
+
+.productsGridClass {
+    width: 100%;
+    /*this will be the color of the odd row*/
+    background-color: #fff !important;
+    margin: 5px 0 10px 0;
+    border: solid 1px #525252;
+    border-collapse: collapse;
+}
+
+    /*data elements*/
+    .productsGridClass td {
+        padding: 2px;
+        border: solid 1px #c1c1c1;
+        color: #717171 !important;
+    }
+
+    /*header elements*/
+    .productsGridClass th {
+        padding: 4px 2px;
+        color: #fff !important;
+        background: #3567FF;
+        border-left: solid 1px #525252;
+        font-size: 0.9em;
+    }
+
+    /*his will be the color of even row*/
+    .productsGridClass .myAltRowClass {
+        background: #fcfcfc repeat-x top !important;
+    }
+
+    /*and finally, we style the pager on the bottom*/
+    .productsGridClass .myPagerClass {
+        background: #424242 !important;
+    }
+
+        .productsGridClass .myPagerClass table {
+            margin: 5px 0;
+        }
+
+        .productsGridClass .myPagerClass td {
+            border-width: 0;
+            padding: 0 6px;
+            border-left: solid 1px #666;
+            font-weight: bold;
+            color: #fff;
+            line-height: 12px;
+        }
+
+        .productsGridClass .myPagerClass a {
+            color: #666 !important;
+            text-decoration: none;
+        }
+
+            .productsGridClass .myPagerClass a:hover {
+                color: #000 !important;
+                text-decoration: none;
+            }
+
+.solutionsGridClass {
+    width: 100%;
+    /*this will be the color of the odd row*/
+    background-color: #fff !important;
+    margin: 5px 0 10px 0;
+    border: solid 1px #525252;
+    border-collapse: collapse;
+}
+
+    /*data elements*/
+    .solutionsGridClass td {
+        padding: 2px;
+        border: solid 1px #c1c1c1;
+        color: #717171 !important;
+    }
+
+    /*header elements*/
+    .solutionsGridClass th {
+        padding: 4px 2px;
+        color: #fff;
+        background: #FF9C4C !important;
+        border-left: solid 1px #525252;
+        font-size: 0.9em;
+    }
+
+    /*his will be the color of even row*/
+    .solutionsGridClass .myAltRowClass {
+        background: #fcfcfc repeat-x top !important;
+    }
+
+    /*and finally, we style the pager on the bottom*/
+    .solutionsGridClass .myPagerClass {
+        background: #424242 !important;
+    }
+
+        .solutionsGridClass .myPagerClass table {
+            margin: 5px 0;
+        }
+
+        .solutionsGridClass .myPagerClass td {
+            border-width: 0;
+            padding: 0 6px;
+            border-left: solid 1px #666;
+            font-weight: bold;
+            color: #fff !important;
+            line-height: 12px;
+        }
+
+        .solutionsGridClass .myPagerClass a {
+            color: #666 !important;
+            text-decoration: none;
+        }
+
+            .solutionsGridClass .myPagerClass a:hover {
+                color: #000 !important;
+                text-decoration: none;
+            }
