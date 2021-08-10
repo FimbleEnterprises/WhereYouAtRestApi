@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace WhereYouAt.Api {
+namespace WhereYouAt.AppCode {
 	public class OperationResults {
 		public List<OperationResult> allResults = new List<OperationResult>();
 
@@ -25,11 +25,11 @@ namespace WhereYouAt.Api {
 	public class OperationResult {
 		public bool wasSuccessful;
 		public string operationSummary;
-		public object result;
+		public string result;
 
 		public OperationResult() { }
 
-		public OperationResult(bool wasSuccessful, string operationSummary, object result) {
+		public OperationResult(bool wasSuccessful, string operationSummary, string result) {
 			this.wasSuccessful = wasSuccessful;
 			this.operationSummary = operationSummary;
 			this.result = result;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace WhereYouAt.Api {
+namespace WhereYouAtRestApi.AppCode {
 
 	public class Trip {
 		public string tripcode;
